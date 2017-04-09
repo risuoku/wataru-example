@@ -1,0 +1,10 @@
+{
+    "display_name": "wataru Python3", 
+    "language": "python", 
+    "argv": [
+        "python", 
+        "-m", "ipykernel",
+        "--profile=wataru_default",
+        "-f", "{connection_file}"
+    ]
+}
