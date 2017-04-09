@@ -11,7 +11,7 @@ def main():
     # load scenario module and execute
     mod_scenario = importlib.import_module('modules.scenarios.{}'.format(ns.scenario_name))
     s = mod_scenario.Scenario().build()
-    print(s._provider._value)
+    print(s._trainer._trainers)
 
 
 if __name__ == '__main__':

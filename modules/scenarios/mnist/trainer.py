@@ -8,7 +8,7 @@ import wataru.workflows.base.trainer as basetrainer
 import wataru.workflows.utils as utils
 
 BATCH_SIZE = 100
-EPOCH = 2
+EPOCH = 30
 
 
 # Network definition
@@ -29,37 +29,40 @@ class MLP(chainer.Chain):
 
 
 class Trainer(basetrainer.Trainer):
-    def __init__(self, train_data, test_data):
+    def __init__(self, train_data, test_data, parameters = None):
         self._train_data = train_data
         self._test_data = test_data
-        self._value = None
+        self._parameters = parameters
+        self._trainers = {}
     
     def build(self):
-        model = L.Classifier(MLP(1000, 10))
-        optimizer = chainer.optimizers.Adam()
-        optimizer.setup(model)
+        for label, labeled_param in self._parameters:
+            print(label)
+            model = L.Classifier(MLP(labeled_param['unit'], 10))
+            optimizer = chainer.optimizers.Adam()
+            optimizer.setup(model)
 
-        gpu_id = utils.get_available_device_id()
-        if gpu_id is None:
-            gpu_id = -1
-        if gpu_id >= 0:
-            chainer.cuda.get_device(gpu_id).use()
-            model.to_gpu() 
+            gpu_id = utils.get_available_device_id()
+            if gpu_id is None:
+                gpu_id = -1
+            if gpu_id >= 0:
+                chainer.cuda.get_device(gpu_id).use()
+                model.to_gpu() 
 
-        train_iter = chainer.iterators.SerialIterator(self._train_data, BATCH_SIZE)
-        test_iter = chainer.iterators.SerialIterator(self._test_data, BATCH_SIZE,
-                                                 repeat=False, shuffle=False)
-        updater = training.StandardUpdater(train_iter, optimizer, device=gpu_id)
-        trainer = training.Trainer(updater, (EPOCH, 'epoch'))
+            train_iter = chainer.iterators.SerialIterator(self._train_data, labeled_param['batchsize'])
+            test_iter = chainer.iterators.SerialIterator(self._test_data, labeled_param['batchsize'],
+                                                     repeat=False, shuffle=False)
+            updater = training.StandardUpdater(train_iter, optimizer, device=gpu_id)
+            trainer = training.Trainer(updater, (EPOCH, 'epoch'))
 
-        trainer.extend(extensions.Evaluator(test_iter, model, device=gpu_id))
-        trainer.extend(extensions.dump_graph('main/loss'))
-        trainer.extend(extensions.LogReport())
-        trainer.extend(extensions.PrintReport(
-            ['epoch', 'main/loss', 'validation/main/loss',
-             'main/accuracy', 'validation/main/accuracy', 'elapsed_time']))
-        trainer.extend(extensions.ProgressBar())
-        trainer.run()
+            trainer.extend(extensions.Evaluator(test_iter, model, device=gpu_id))
+            trainer.extend(extensions.dump_graph('main/loss'))
+            trainer.extend(extensions.LogReport())
+            trainer.extend(extensions.PrintReport(
+                ['epoch', 'main/loss', 'validation/main/loss',
+                 'main/accuracy', 'validation/main/accuracy', 'elapsed_time']))
+            trainer.extend(extensions.ProgressBar())
+            trainer.run()
 
-        self._trainer = trainer
+            self._trainers[label] = trainer
         return self
