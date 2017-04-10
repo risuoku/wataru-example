@@ -7,8 +7,8 @@ import itertools
 
 
 _train_parameters = {
-    'unit': [100, 500, 1000, 2000],
-    'batchsize': [10, 50, 100, 500],
+    'unit': [500, 1000],
+    'batchsize': [100, 500],
 }
 
 
