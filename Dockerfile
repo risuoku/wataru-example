@@ -1,4 +1,4 @@
-FROM wataru1
+FROM wataru-analysis-base
 ENV APPLICATION_ENV docker
 
 ENV JUPYTER_PATH /dockerwork/.jupyter

@@ -11,5 +11,8 @@ RUN set -x && apt-get update && apt-get install -y\
     chainer==1.22.0\
     git+https://github.com/risuoku/wataru.git\
 
+    # python bin symlink
+    && ln -s /usr/bin/python3 /usr/bin/python\
+
     # clean 
     && apt-get clean && rm -rf /var/lib/apt/lists/*

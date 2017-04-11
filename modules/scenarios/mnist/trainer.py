@@ -66,3 +66,6 @@ class Trainer(basetrainer.Trainer):
 
             self._trainers[label] = trainer
         return self
+
+    def save(self):
+        pass
